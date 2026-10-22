@@ -1,5 +1,11 @@
 name: Build and Publish
 
+# Push a canonical v-prefixed PEP 440 tag (for example v2.9.2rc1).
+# Manual runs require an existing tag pointing to the selected source commit.
+# CI and every extracted/installed artifact must pass before creating a Release.
+# Forks may rehearse prereleases only and never upload to the upstream PyPI project.
+# macOS signatures are ad-hoc; Developer ID notarization is not configured here.
+
 on:
   push:
     tags: ['v*']

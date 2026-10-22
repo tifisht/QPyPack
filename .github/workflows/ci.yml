@@ -1,5 +1,9 @@
 name: CI
 
+# Run the upstream tests unchanged. The two real_build tests run separately
+# because they install toolchains and compile programs. Neither job ignores failures.
+# Local equivalents: pytest tests -k "not real_build" / pytest tests/test_check.py -k real_build
+
 on:
   push:
     branches: [main]
@@ -40,11 +44,10 @@ jobs:
       - name: Install application and test dependencies
         run: python -m pip install -e . pytest
       - name: Run checks without compiling binaries
-        run: python -m pytest tests -m "not e2e" -vv --strict-markers
+        run: python -m pytest tests -k "not real_build" -vv
 
   build-tests:
     name: Real builds (${{ matrix.os }})
-    needs: tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -68,4 +71,4 @@ jobs:
       - name: Install application and build test dependencies
         run: python -m pip install -e . pytest pyinstaller nuitka zstandard
       - name: Build and execute example programs with both engines
-        run: python -m pytest tests -m e2e -vv --strict-markers
+        run: python -m pytest tests/test_check.py -k real_build -vv
