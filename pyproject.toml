@@ -45,6 +45,11 @@ qpypack = "qpypack.main:main"
 [tool.setuptools]
 packages = ["qpypack"]
 
+[tool.pytest.ini_options]
+markers = [
+    "e2e: builds and executes a real binary; requires network access and build tools",
+]
+
 [tool.setuptools.package-data]
 qpypack = [
     "icon.ico",

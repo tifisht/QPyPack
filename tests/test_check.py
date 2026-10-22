@@ -84,6 +84,12 @@ def init_qapp():
     yield app
 
 
+@pytest.fixture(autouse=True)
+def isolated_config(tmp_path, monkeypatch):
+    """Keep test settings separate from the developer's saved preferences."""
+    monkeypatch.setattr(main, "CONFIG_FILE", str(tmp_path / "config.ini"))
+
+
 def test_01_config_and_i18n():
     """测试 1: 配置加载、保存及多语言系统"""
     print(f"\n{Colors.BOLD}{Colors.CYAN}>>> [测试 1/8] 偏好设置及国际化引擎校验...{Colors.RESET}")
@@ -261,7 +267,8 @@ def run_e2e_mock_build(engine_name: str, tmp_dir: Path, is_onefile: bool = True)
     reqs = app_dir / "requirements.txt"
     reqs.write_text("# simple requirements\n", encoding="utf-8")
 
-    python_exe = main.get_python_executable()
+    # Use the interpreter running pytest, not a separately discovered system Python.
+    python_exe = sys.executable
     assert python_exe and os.path.exists(python_exe), "未检测到可用的测试 Python 解释器"
 
     params = {
@@ -275,7 +282,8 @@ def run_e2e_mock_build(engine_name: str, tmp_dir: Path, is_onefile: bool = True)
         "app_name": "app_main",
         "onefile": is_onefile,
         "contents_dir": "_internal",
-        "noconsole": True,
+        # This fixture is a CLI program: stdout is part of the acceptance check.
+        "noconsole": False,
         "icon": "",
         "use_reqs": True,
         "use_pipreqs": False,
@@ -329,7 +337,7 @@ def run_e2e_mock_build(engine_name: str, tmp_dir: Path, is_onefile: bool = True)
     success, msg = results[0]
 
     if not success:
-        print("\n" + "!" * 30 + " NUITKA ERROR LOGS " + "!" * 30)
+        print("\n" + "!" * 30 + f" {engine_name} ERROR LOGS " + "!" * 30)
         print("\n".join(logs))
         print("!" * 79 + "\n")
 
@@ -352,6 +360,7 @@ def run_e2e_mock_build(engine_name: str, tmp_dir: Path, is_onefile: bool = True)
     assert proc.returncode == 0, f"构建产物启动异常退出，ReturnCode: {proc.returncode}"
     assert "BOOT_SUCCESS_OK" in proc.stdout, f"产物输出未匹配到预期签名，标准输出: {proc.stdout}"
 
+@pytest.mark.e2e
 def test_07_pyinstaller_real_build(init_qapp):
     """测试 7: PyInstaller 真实构建与产物执行测试"""
     print(f"\n{Colors.BOLD}{Colors.CYAN}>>> [测试 7/8] PyInstaller Lite 模式真实端到端打包...{Colors.RESET}")
@@ -366,14 +375,11 @@ def test_07_pyinstaller_real_build(init_qapp):
         safe_cleanup_dir(tmp_dir)
 
 
+@pytest.mark.e2e
 def test_08_nuitka_real_build(init_qapp):
     """测试 8: Nuitka 真实编译与产物执行测试 (防 WinError 5)"""
     print(f"\n{Colors.BOLD}{Colors.CYAN}>>> [测试 8/8] Nuitka Lite 模式原生编译与实机验证...{Colors.RESET}")
-    try:
-        import nuitka
-    except ImportError:
-        log_warn("当前环境未安装 Nuitka，跳过实机编译测试")
-        return
+    pytest.importorskip("nuitka", reason="Nuitka is required for the native build test")
 
     tmp_dir = Path(tempfile.mkdtemp(prefix="qp_e2e_nuitka_"))
     try:
