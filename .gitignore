@@ -49,6 +49,11 @@ qpypack_build_*.log
 dropdown_arrow.png
 sound_success.wav
 sound_failure.wav
+release-assets/
+validation/
+dmg-staging/
+build-icon.icns
+build-version.txt
 
 # ==========================================
 # 6. IDE 与编辑器配置文件

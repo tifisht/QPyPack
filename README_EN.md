@@ -190,6 +190,7 @@ For detailed release notes, new features, and bug fixes, please consult [CHANGEL
 ## 💖 Contributing & Sponsorship
 
 See the [testing guide](docs/TESTING.md) for development setup, fast checks, and real build tests.
+See the [release guide](docs/RELEASING.md) for validated builds, publishing, and fork rehearsals.
 
 QPyPack is an open-source project maintained during personal time. If QPyPack has helped streamline your deployment workflow, voluntary sponsorships are warmly welcomed to support continuous development:
 

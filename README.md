@@ -190,6 +190,7 @@ def get_asset_path(relative_path: str) -> Path:
 ## 💖 参与贡献与赞助 (Sponsorship & Contributing)
 
 开发环境、快速检查和真实编译验证的运行方式见 [测试说明](docs/TESTING.md)。
+自动构建、发布前验证与 Fork 演练见 [发布说明](docs/RELEASING.md)。
 
 QPyPack 是一个遵循开源理念的项目。如果您在日常开发或工作中受益于本项目，欢迎通过以下方式支持本项目的长期维护与迭代：
 
