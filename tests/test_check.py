@@ -232,20 +232,25 @@ def test_06_ui_settings_panel(init_qapp):
     """测试 6: 构建设置面板组件与参数状态双向绑定"""
     print(f"\n{Colors.BOLD}{Colors.CYAN}>>> [测试 6/8] UI 设置面板及交互流转...{Colors.RESET}")
     win = main.MainWindow()
-    panel = win.settings_panel
+    try:
+        panel = win.settings_panel
 
-    panel.rb_lite_mode.setChecked(True)
-    assert panel.rb_lite_mode.isChecked()
+        panel.rb_lite_mode.setChecked(True)
+        assert panel.rb_lite_mode.isChecked()
 
-    panel.engine_combo.setCurrentText("Nuitka")
-    assert panel.engine_combo.currentText() == "Nuitka"
+        panel.engine_combo.setCurrentText("Nuitka")
+        assert panel.engine_combo.currentText() == "Nuitka"
 
-    panel._add_resource_item("file", "C:/dummy.txt", ".")
-    assert panel.add_data_list.count() == 1
-    panel.clear_resource()
-    assert panel.add_data_list.count() == 0
-
-    win.close()
+        panel._add_resource_item("file", "C:/dummy.txt", ".")
+        assert panel.add_data_list.count() == 1
+        panel.clear_resource()
+        assert panel.add_data_list.count() == 0
+    finally:
+        # CI hosts can have many Python installations. Keep the window alive
+        # until its scanner finishes instead of destroying a running QThread.
+        assert win.settings_panel.scanner_thread.wait(30000), "Python scanner did not finish within 30 seconds"
+        init_qapp.processEvents()
+        win.close()
     log_pass("UI 核心交互与状态绑定测试通过")
 
 
